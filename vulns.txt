@@ -1,0 +1,2 @@
+-Have hidden menu that you have to RE and patch that allows raw shell
+-
