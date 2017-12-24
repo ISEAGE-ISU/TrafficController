@@ -6,6 +6,8 @@
 #include <iostream>
 #include <ncurses.h>
 #include <string.h>
+#include <map>
+#include <functional>
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define MENU_WIDTH 50
@@ -28,9 +30,21 @@ private:
                           "View Device Info",
                           "Exit                                   ",
                     };
+  std::map<std::string, std::function<void()>> menuHandler;
+
+
   void PrintStatus(std::string msg);
+  std::string GetInput(std::string prompt);
   void Shutdown();
 
+  void MenuRebootDevice();
+  void MenuUploadTrafficProgramming();
+  void MenuGetLightStatus();
+  void MenuSetLightStatus();
+  void MenuUpdateFirmware();
+  void MenuViewDeviceInfo();
+  void MenuExit();
+  
 public:
   void InputLoop();
   ControlPanel();

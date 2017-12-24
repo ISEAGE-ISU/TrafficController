@@ -56,6 +56,15 @@ ControlPanel::ControlPanel() {
   doupdate();
   wrefresh(main_win);
   wrefresh(status_bar);
+
+  //Setup Menu handlers
+  menuHandler.insert(std::make_pair("Reboot Device", std::bind(&ControlPanel::MenuRebootDevice, this)));
+  menuHandler.insert(std::make_pair("Upload Traffic Light Programming", std::bind(&ControlPanel::MenuUploadTrafficProgramming, this)));
+  menuHandler.insert(std::make_pair("Set Light Status", std::bind(&ControlPanel::MenuSetLightStatus, this)));
+  menuHandler.insert(std::make_pair("Get Light Status", std::bind(&ControlPanel::MenuGetLightStatus, this)));
+  menuHandler.insert(std::make_pair("Update Firmware", std::bind(&ControlPanel::MenuUpdateFirmware, this)));
+  menuHandler.insert(std::make_pair("View Device Info", std::bind(&ControlPanel::MenuViewDeviceInfo, this)));
+  menuHandler.insert(std::make_pair("Exit", std::bind(&ControlPanel::MenuExit, this)));
 }
 
 ControlPanel::~ControlPanel() {
@@ -89,25 +98,10 @@ void ControlPanel::InputLoop() {
               PrintStatus("");
               break;
             case 10: /* Enter */
-              const char *selected_item = item_name(current_item(menu));
-
-              if (strstr(selected_item, "Upload Traffic Light Programming") != NULL) {
-                  char tftp_ip[25] = {0};
-                  PrintStatus("Enter TFTP server IP:");
-                  echo();
-                  mvwgetnstr(status_bar, 1, strlen("Enter TFTP server IP: ") + 3, tftp_ip, 20);
-                  noecho();
-
-                  PrintStatus(tftp_ip);
+              try {
+                menuHandler[item_name(current_item(menu))](); //Invoke selected item handler
               }
-              else if (strstr(selected_item, "View Device Info") != NULL) {
-                char printbuf[100] = {0};
-                snprintf(printbuf, 100, "IP: %s\t\t\tFirmware Version: %s", "0.0.0.0", FW_VER);
-                PrintStatus(printbuf);
-              }
-              else if (strstr(selected_item, "Exit") != NULL) {
-                Shutdown();
-              }
+              catch (...) {}
               wrefresh(status_bar);
               wrefresh(main_win);
               break;
@@ -126,4 +120,49 @@ void ControlPanel::Shutdown() {
   delwin(status_bar);
   endwin();
   exit(0);
+}
+
+std::string ControlPanel::GetInput(std::string prompt) {
+  char input[100] = {0};
+  PrintStatus(prompt);
+  echo();
+  mvwgetnstr(status_bar, 1, prompt.length() + 4, input, 99);
+  noecho();
+  return std::string(input);
+}
+
+void ControlPanel::MenuSetLightStatus() {
+
+}
+
+void ControlPanel::MenuGetLightStatus() {
+
+}
+
+void ControlPanel::MenuUpdateFirmware() {
+  std::string tftp_ip = GetInput("Enter TFTP IP:");
+  std::string tftp_file = GetInput("Enter Filename:");
+
+  PrintStatus("Fetching from tftp://" + tftp_ip + "/" +  tftp_file);
+}
+
+void ControlPanel::MenuUploadTrafficProgramming() {
+  std::string tftp_ip = GetInput("Enter TFTP Server IP:");
+  std::string tftp_file = GetInput("Enter Filename:");
+
+  PrintStatus("Fetching from tftp://" + tftp_ip + "/" +  tftp_file);
+}
+
+void ControlPanel::MenuRebootDevice() {
+
+}
+
+void ControlPanel::MenuViewDeviceInfo() {
+  char printbuf[100] = {0};
+  snprintf(printbuf, 100, "IP: %s\t\t\tFirmware Version: %s", "0.0.0.0", FW_VER);
+  PrintStatus(printbuf);
+}
+
+void ControlPanel::MenuExit() {
+  Shutdown();
 }
