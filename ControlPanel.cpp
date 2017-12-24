@@ -12,20 +12,21 @@ ControlPanel::ControlPanel() {
   init_pair(3, COLOR_MAGENTA, COLOR_BLACK);
   getmaxyx(stdscr, max_row, max_col);
 
-  items = (ITEM *)malloc(menu_len * sizeof(ITEM *));
+  int menu_len = ARRAY_SIZE(menu_choices);
+  items = (ITEM**)malloc(menu_len * sizeof(ITEM *));
   bzero(items, menu_len * sizeof(ITEM*));
 
   for(int i = 0; i < menu_len; ++i)
         (items)[i] = new_item(menu_choices[i], "");
   (items)[menu_len + 1] = (ITEM *)NULL;
 
-  menu = new_menu((ITEM *)items);
+  menu = new_menu(items);
 
   set_menu_fore(menu, COLOR_PAIR(1) | A_REVERSE);
   set_menu_back(menu, COLOR_PAIR(2));
   set_menu_grey(menu, COLOR_PAIR(3));
 
-  int menu_len = ARRAY_SIZE(menu_choices);
+
 
   status_bar = subwin(stdscr, 4, max_col, max_row - 4, 0);
   box(status_bar, 0, 0);
@@ -58,13 +59,7 @@ ControlPanel::ControlPanel() {
 }
 
 ControlPanel::~ControlPanel() {
-  unpost_menu(menu);
-  for(int i = 0; i < ARRAY_SIZE(menu_choices); ++i)
-      free_item(items[i]);
-  free_menu(menu);
-  delwin(main_win);
-  delwin(status_bar);
-  endwin();
+
 }
 
 void ControlPanel::PrintStatus(std::string msg) {
@@ -79,43 +74,40 @@ void ControlPanel::PrintStatus(std::string msg) {
 }
 
 void ControlPanel::InputLoop() {
-  char c;
+  int c;
   while((c = wgetch(main_win)) != KEY_F(1)) {
       switch(c) {
             case 'q':
-              endwin();
-              return 0;
+              Shutdown();
               break;
             case KEY_DOWN:
               menu_driver(menu, REQ_DOWN_ITEM);
-              print_status("");
+              PrintStatus("");
               break;
             case KEY_UP:
               menu_driver(menu, REQ_UP_ITEM);
-              print_status("");
+              PrintStatus("");
               break;
             case 10: /* Enter */
               const char *selected_item = item_name(current_item(menu));
 
               if (strstr(selected_item, "Upload Traffic Light Programming") != NULL) {
                   char tftp_ip[25] = {0};
-                  print_status("Enter TFTP server IP:");
+                  PrintStatus("Enter TFTP server IP:");
                   echo();
                   mvwgetnstr(status_bar, 1, strlen("Enter TFTP server IP: ") + 3, tftp_ip, 20);
                   noecho();
 
-                  print_status(tftp_ip);
+                  PrintStatus(tftp_ip);
               }
               else if (strstr(selected_item, "View Device Info") != NULL) {
                 char printbuf[100] = {0};
                 snprintf(printbuf, 100, "IP: %s\t\t\tFirmware Version: %s", "0.0.0.0", FW_VER);
-                print_status(printbuf);
+                PrintStatus(printbuf);
               }
               else if (strstr(selected_item, "Exit") != NULL) {
-                goto exit;
+                Shutdown();
               }
-
-
               wrefresh(status_bar);
               wrefresh(main_win);
               break;
@@ -123,4 +115,15 @@ void ControlPanel::InputLoop() {
     refresh();
     wrefresh(main_win);
   }
+}
+
+void ControlPanel::Shutdown() {
+  unpost_menu(menu);
+  for(int i = 0; i < ARRAY_SIZE(menu_choices); ++i)
+      free_item(items[i]);
+  free_menu(menu);
+  delwin(main_win);
+  delwin(status_bar);
+  endwin();
+  exit(0);
 }
