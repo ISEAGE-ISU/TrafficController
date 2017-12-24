@@ -51,7 +51,7 @@ void build_menu(ITEM ***items, char **menu_choices, int menu_len, MENU **menu) {
 
 void print_status(const char *str, WINDOW *status_bar) {
     wclear(status_bar);
-    mvwprintw(status_bar, 0, 0, "Status: %s", str);
+    mvwprintw(status_bar, 0, 0, "%s", str);
     wrefresh(status_bar);
 }
 
@@ -111,66 +111,17 @@ int main()
                 menu_driver(menu, REQ_UP_ITEM);
                 break;
               case 10: /* Enter */
-                move(LINES - 2, 0);
-                clrtoeol();
                 const char *selected_item = item_name(current_item(menu));
 
-                print_status(selected_item, status_bar);
 
                 if (strstr(selected_item, "Upload") != NULL) {
                     //tftp_download("http://x86sec.com/static/main.js", "test.js");
-
-                    WINDOW *popup_win = newwin(12, 40, (max_row - 12) / 2, (max_col - 40)/2);
-                    PANEL *popup_panel;
-                    wattron(popup_win, COLOR_PAIR(1));
-                    box(popup_win, 0, 0);
-                    wattroff(popup_win, COLOR_PAIR(1));
-
-                    mvwprintw(popup_win, 0, 4, "%s", "TFTP Server Settings");
-                    popup_panel = new_panel(popup_win);
-
-
-                    FORM *server_form;
-                    FIELD *fields[4];
-
-                    fields[0] = new_field(1, 10, 4, 18, 0, 0);
-                    set_field_opts(fields[0], O_AUTOSKIP | O_VISIBLE | O_PUBLIC);
-                    set_field_back(fields[0], A_UNDERLINE);
-
-                    fields[1] = new_field(1, 10, 6, 18, 0, 0);
-                    set_field_opts(fields[1], O_AUTOSKIP | O_VISIBLE | O_PUBLIC);
-                    set_field_back(fields[1], A_UNDERLINE);
-                    fields[2] = new_field(1, 10, 8, 18, 0, 0);
-                    fields[3] = NULL;
-
-                    server_form = new_form(fields);
-                    WINDOW *form_win = derwin(popup_win, 10, 10, 2, 2);
-
-                    set_form_win(server_form, form_win);
-                    set_form_sub(server_form, derwin(popup_win, 8, 8, 1, 1));
-                    post_form(server_form);
-
-                    mvwprintw(popup_win, 4, 10, "Value 1:");
-                    mvwprintw(popup_win, 6, 10, "Value 2:");
-                    refresh();
-
-                    update_panels();
-                    doupdate();
-                    wrefresh(popup_win);
-                    wrefresh(form_win);
-
-                    getch();
-
-                    unpost_form(server_form);
-                    free_form(server_form);
-                    free_field(fields[0]);
-                    free_field(fields[1]);
-                    free_field(fields[2]);
-                    free_field(fields[3]);
-                    del_panel(popup_panel);
-                    delwin(form_win);
-                    endwin();
-                    delwin(popup_win);
+                     echo();
+                     print_status("Enter TFTP server IP:", status_bar);
+                     move(max_row - 1, strlen("Enter TFTP server IP:") + 2);
+                     refresh();
+                     wrefresh(status_bar);
+                     wrefresh(main_win);
                 }
                 wrefresh(status_bar);
                 wrefresh(main_win);
