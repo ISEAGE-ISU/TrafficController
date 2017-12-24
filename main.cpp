@@ -3,23 +3,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <form.h>
-#include <panel.h>
 
 #include "file_ops.h"
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define MENU_WIDTH 50
 #define MENU_HEIGHT 18
+#define FW_VER "1.0"
 
 char *menu_choices[] = {
                         "Reboot Device",
                         "Upload Traffic Light Programming",
-                        "Choice 3",
-                        "Choice 4",
+                        "Set Light Status",
+                        "Get Light Status",
                         "Choice 5",
-                        "Choice 6",
-                        "Choice 7",
+                        "Update Firmware",
+                        "View Device Info",
                         "Exit                                   ",
                   };
 void init() {
@@ -51,7 +50,12 @@ void build_menu(ITEM ***items, char **menu_choices, int menu_len, MENU **menu) {
 
 void print_status(const char *str, WINDOW *status_bar) {
     wclear(status_bar);
-    mvwprintw(status_bar, 0, 0, "%s", str);
+    box(status_bar, 0, 0);
+    wattron(status_bar, COLOR_PAIR(1));
+    mvwprintw(status_bar, 0, 2, "Status:");
+    wattroff(status_bar, COLOR_PAIR(1));
+
+    mvwprintw(status_bar, 1, 3, "%s", str);
     wrefresh(status_bar);
 }
 
@@ -62,7 +66,6 @@ int main()
     MENU *menu;
     int max_row, max_col;
     WINDOW *main_win, *status_bar;
-    PANEL *main_panel;
 
     int menu_len = ARRAY_SIZE(menu_choices);
     init();
@@ -70,11 +73,10 @@ int main()
     build_menu(&items, menu_choices, menu_len, &menu);
 
     getmaxyx(stdscr, max_row, max_col);
-    status_bar = subwin(stdscr, 1, max_col, max_row - 1, 0);
+    status_bar = subwin(stdscr, 4, max_col, max_row - 4, 0);
+    box(status_bar, 0, 0);
 
-    main_win = subwin(stdscr, MENU_HEIGHT, MENU_WIDTH, ((max_row - MENU_HEIGHT)/2) - 1, (max_col - MENU_WIDTH)/ 2);
-    main_panel = new_panel(main_win);
-    update_panels();
+    main_win = subwin(stdscr, MENU_HEIGHT, MENU_WIDTH, ((max_row - MENU_HEIGHT)/2) - 2, (max_col - MENU_WIDTH)/ 2);
 
     keypad(main_win, TRUE);
     set_menu_win(menu, main_win);
@@ -82,7 +84,9 @@ int main()
     set_menu_mark(menu, " > ");
     box(main_win, 0, 0);
 
-    mvwprintw(status_bar, 0, 0, "Status:");
+    wattron(status_bar, COLOR_PAIR(1));
+    mvwprintw(status_bar, 0, 2, "Status:");
+    wattroff(status_bar, COLOR_PAIR(1));
 
     wattron(main_win, COLOR_PAIR(1));
     mvwprintw(main_win, 1, (MENU_WIDTH - strlen("City of Ames Traffic"))/2, "%s", "City of Ames Traffic");
@@ -106,23 +110,34 @@ int main()
                 break;
               case KEY_DOWN:
                 menu_driver(menu, REQ_DOWN_ITEM);
+                print_status("", status_bar);
                 break;
               case KEY_UP:
                 menu_driver(menu, REQ_UP_ITEM);
+                print_status("", status_bar);
                 break;
               case 10: /* Enter */
                 const char *selected_item = item_name(current_item(menu));
 
+                if (strstr(selected_item, "Upload Traffic Light Programming") != NULL) {
+                    char tftp_ip[25] = {0};
+                    print_status("Enter TFTP server IP:", status_bar);
+                    echo();
+                    mvwgetnstr(status_bar, 1, strlen("Enter TFTP server IP: ") + 3, tftp_ip, 20);
+                    noecho();
 
-                if (strstr(selected_item, "Upload") != NULL) {
-                    //tftp_download("http://x86sec.com/static/main.js", "test.js");
-                     echo();
-                     print_status("Enter TFTP server IP:", status_bar);
-                     move(max_row - 1, strlen("Enter TFTP server IP:") + 2);
-                     refresh();
-                     wrefresh(status_bar);
-                     wrefresh(main_win);
+                    print_status(tftp_ip, status_bar);
                 }
+                else if (strstr(selected_item, "View Device Info") != NULL) {
+                  char printbuf[100] = {0};
+                  snprintf(printbuf, 100, "IP: %s\t\t\tFirmware Version: %s", "0.0.0.0", FW_VER);
+                  print_status(printbuf, status_bar);
+                }
+                else if (strstr(selected_item, "Exit") != NULL) {
+                  goto exit;
+                }
+
+
                 wrefresh(status_bar);
                 wrefresh(main_win);
                 break;
@@ -131,6 +146,7 @@ int main()
       wrefresh(main_win);
     }
 
+exit:
     unpost_menu(menu);
     for(int i = 0; i < ARRAY_SIZE(menu_choices); ++i)
         free_item(items[i]);
