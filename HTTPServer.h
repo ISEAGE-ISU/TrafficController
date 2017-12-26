@@ -8,16 +8,18 @@
 
 #define PROGRAMMING_FILE "programming.csv"
 
-class HTTPServer {
-private:
-  struct mg_mgr mgr;
-  struct mg_connection *c;
+namespace CDC {
+  class HTTPServer {
+  private:
+    struct mg_mgr mgr;
+    struct mg_connection *c;
 
-public:
-  HTTPServer(std::string port, std::string file);
-  static void RequestHandler(struct mg_connection *c, int ev, void *p);
-  void ServerLoop();
-  ~HTTPServer();
-};
+  public:
+    HTTPServer(std::string port);
+    static void RequestHandler(struct mg_connection *c, int ev, void *p);
+    void ServerLoop();
+    ~HTTPServer();
+  };
+}
 
 #endif

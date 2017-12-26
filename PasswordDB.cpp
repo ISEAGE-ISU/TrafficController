@@ -23,9 +23,9 @@ PasswordDB::PasswordDB() {
 
 bool PasswordDB::SetPassword(std::string newPass, std::string oldPass) {
   std::ofstream pwFile;
-  pwFile.open("passwordd.txt", std::ios::out | std::ios::trunc);
+  pwFile.open("password.txt", std::ios::out | std::ios::trunc);
   if (pwFile.good() && pwFile.is_open()) {
-    pwFile << "test " << std::endl;
+    pwFile <<  newPass << std::endl;
     pwFile.close();
     return true;
   }

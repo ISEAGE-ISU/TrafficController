@@ -1,10 +1,10 @@
-#include "file_ops.h"
+#include "FileOps.h"
 
-size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+size_t CDC::FileOps::write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     return fwrite(ptr, size, nmemb, stream);
 }
 
-bool tftp_download(const char *url, const char *save_file) {
+bool CDC::FileOps::tftp_download(const char *url, const char *save_file) {
     CURL *curl;
     CURLcode res;
 
@@ -18,7 +18,7 @@ bool tftp_download(const char *url, const char *save_file) {
             return false;
         }
         curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, FileOps::write_data);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
         res = curl_easy_perform(curl);
 

@@ -4,8 +4,14 @@
 #include <thread>
 
 int main() {
-  HTTPServer hs("8080", "cats.txt");
-  hs.ServerLoop();
-  //ControlPanel cp;
-  //cp.InputLoop();
+  auto serverFn = [] () -> void {
+    CDC::HTTPServer hs("8080");
+    hs.ServerLoop();
+  };
+
+  std::thread httpServerThread(serverFn);
+  httpServerThread.detach();
+
+  CDC::ControlPanel cp;
+  cp.InputLoop();
 }

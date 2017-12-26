@@ -1,6 +1,6 @@
 #include "ControlPanel.h"
 
-ControlPanel::ControlPanel() {
+CDC::ControlPanel::ControlPanel() {
   pwDb = new PasswordDB();
   loggedIn = false;
 
@@ -59,21 +59,21 @@ ControlPanel::ControlPanel() {
   wrefresh(status_bar);
 
   //Setup Menu handlers
-  menuHandler.insert(std::make_pair("Reboot Device", std::bind(&ControlPanel::MenuRebootDevice, this)));
-  menuHandler.insert(std::make_pair("Upload Traffic Light Programming", std::bind(&ControlPanel::MenuUploadTrafficProgramming, this)));
-  menuHandler.insert(std::make_pair("Set Light Status", std::bind(&ControlPanel::MenuSetLightStatus, this)));
-  menuHandler.insert(std::make_pair("Get Light Status", std::bind(&ControlPanel::MenuGetLightStatus, this)));
-  menuHandler.insert(std::make_pair("Update Firmware", std::bind(&ControlPanel::MenuUpdateFirmware, this)));
-  menuHandler.insert(std::make_pair("View Device Info", std::bind(&ControlPanel::MenuViewDeviceInfo, this)));
-  menuHandler.insert(std::make_pair("Exit", std::bind(&ControlPanel::MenuExit, this)));
-  menuHandler.insert(std::make_pair("Change Admin Password", std::bind(&ControlPanel::MenuChangeAdminPassword, this)));
+  menuHandler.insert(std::make_pair("Reboot Device", std::bind(&CDC::ControlPanel::MenuRebootDevice, this)));
+  menuHandler.insert(std::make_pair("Upload Traffic Light Programming", std::bind(&CDC::ControlPanel::MenuUploadTrafficProgramming, this)));
+  menuHandler.insert(std::make_pair("Set Light Status", std::bind(&CDC::ControlPanel::MenuSetLightStatus, this)));
+  menuHandler.insert(std::make_pair("Get Light Status", std::bind(&CDC::ControlPanel::MenuGetLightStatus, this)));
+  menuHandler.insert(std::make_pair("Update Firmware", std::bind(&CDC::ControlPanel::MenuUpdateFirmware, this)));
+  menuHandler.insert(std::make_pair("View Device Info", std::bind(&CDC::ControlPanel::MenuViewDeviceInfo, this)));
+  menuHandler.insert(std::make_pair("Exit", std::bind(&CDC::ControlPanel::MenuExit, this)));
+  menuHandler.insert(std::make_pair("Change Admin Password", std::bind(&CDC::ControlPanel::MenuChangeAdminPassword, this)));
 }
 
-ControlPanel::~ControlPanel() {
+CDC::ControlPanel::~ControlPanel() {
   delete pwDb;
 }
 
-void ControlPanel::PrintStatus(std::string msg) {
+void CDC::ControlPanel::PrintStatus(std::string msg) {
   wclear(status_bar);
   box(status_bar, 0, 0);
   wattron(status_bar, COLOR_PAIR(1));
@@ -84,7 +84,7 @@ void ControlPanel::PrintStatus(std::string msg) {
   wrefresh(status_bar);
 }
 
-void ControlPanel::InputLoop() {
+void CDC::ControlPanel::InputLoop() {
   int c;
   while((c = wgetch(main_win)) != KEY_F(1)) {
       switch(c) {
@@ -113,7 +113,7 @@ void ControlPanel::InputLoop() {
   }
 }
 
-void ControlPanel::Shutdown() {
+void CDC::ControlPanel::Shutdown() {
   unpost_menu(menu);
   for(int i = 0; i < ARRAY_SIZE(menu_choices); ++i)
       free_item(items[i]);
@@ -124,7 +124,7 @@ void ControlPanel::Shutdown() {
   exit(0);
 }
 
-std::string ControlPanel::GetInput(std::string prompt) {
+std::string CDC::ControlPanel::GetInput(std::string prompt) {
   char input[100] = {0};
   PrintStatus(prompt);
   echo();
@@ -133,48 +133,49 @@ std::string ControlPanel::GetInput(std::string prompt) {
   return std::string(input);
 }
 
-void ControlPanel::MenuSetLightStatus() {
+void CDC::ControlPanel::MenuSetLightStatus() {
 
 }
 
-void ControlPanel::MenuGetLightStatus() {
+void CDC::ControlPanel::MenuGetLightStatus() {
 
 }
 
-void ControlPanel::MenuUpdateFirmware() {
+void CDC::ControlPanel::MenuUpdateFirmware() {
   std::string tftp_ip = GetInput("Enter TFTP IP:");
   std::string tftp_file = GetInput("Enter Filename:");
 
   PrintStatus("Fetching from tftp://" + tftp_ip + "/" +  tftp_file);
 }
 
-void ControlPanel::MenuUploadTrafficProgramming() {
+void CDC::ControlPanel::MenuUploadTrafficProgramming() {
   if (loggedIn) {
     std::string tftp_ip = GetInput("Enter TFTP Server IP:");
     std::string tftp_file = GetInput("Enter Filename:");
 
     PrintStatus("Fetching from tftp://" + tftp_ip + "/" +  tftp_file);
+
   }
   else {
     LoginPrompt();
   }
 }
 
-void ControlPanel::MenuRebootDevice() {
+void CDC::ControlPanel::MenuRebootDevice() {
 
 }
 
-void ControlPanel::MenuViewDeviceInfo() {
+void CDC::ControlPanel::MenuViewDeviceInfo() {
   char printbuf[100] = {0};
   snprintf(printbuf, 100, "IP: %s\t\t\tFirmware Version: %s", "0.0.0.0", FW_VER);
   PrintStatus(printbuf);
 }
 
-void ControlPanel::MenuExit() {
+void CDC::ControlPanel::MenuExit() {
   Shutdown();
 }
 
-void ControlPanel::LoginPrompt() {
+void CDC::ControlPanel::LoginPrompt() {
   std::string userPasswd = GetInput("Enter Admin Password:");
   std::string storedPasswd;
 
@@ -193,7 +194,7 @@ void ControlPanel::LoginPrompt() {
   }
 }
 
-void ControlPanel::MenuChangeAdminPassword() {
+void CDC::ControlPanel::MenuChangeAdminPassword() {
   std::string userPasswd = GetInput("Enter Old Admin Password:");
 
   if (pwDb->GetPassword().compare(userPasswd) != 0) {

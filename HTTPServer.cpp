@@ -1,6 +1,6 @@
 #include "HTTPServer.h"
 
-HTTPServer::HTTPServer(std::string port, std::string file) {
+CDC::HTTPServer::HTTPServer(std::string port) {
   mg_mgr_init(&mgr, NULL);
 
   c = mg_bind(&mgr, port.c_str(), HTTPServer::RequestHandler);
@@ -11,11 +11,11 @@ HTTPServer::HTTPServer(std::string port, std::string file) {
   mg_set_protocol_http_websocket(c);
 }
 
-HTTPServer::~HTTPServer() {
+CDC::HTTPServer::~HTTPServer() {
   mg_mgr_free(&mgr);
 }
 
-void HTTPServer::RequestHandler(struct mg_connection *c, int ev, void *p) {
+void CDC::HTTPServer::RequestHandler(struct mg_connection *c, int ev, void *p) {
   struct http_message *hm = (struct http_message*)p;
   if (ev == MG_EV_HTTP_REQUEST) {
     if (mg_vcmp(&hm->uri, "/") == 0) {
@@ -36,7 +36,7 @@ void HTTPServer::RequestHandler(struct mg_connection *c, int ev, void *p) {
   }
 }
 
-void HTTPServer::ServerLoop() {
+void CDC::HTTPServer::ServerLoop() {
   for(;;) {
     mg_mgr_poll(&mgr, 1000);
   }
