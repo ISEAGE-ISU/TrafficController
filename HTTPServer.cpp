@@ -1,9 +1,9 @@
 #include "HTTPServer.h"
 
-CDC::HTTPServer::HTTPServer(std::string port) {
+CDC::HTTPServer::HTTPServer(const char *port) {
   mg_mgr_init(&mgr, NULL);
 
-  c = mg_bind(&mgr, port.c_str(), HTTPServer::RequestHandler);
+  c = mg_bind(&mgr, port, HTTPServer::RequestHandler);
   if (c == NULL) {
     std::cerr << "Unable to bind to port " << port << std::endl;
     exit(-1);

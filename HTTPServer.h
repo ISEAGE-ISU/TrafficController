@@ -15,7 +15,7 @@ namespace CDC {
     struct mg_connection *c;
 
   public:
-    HTTPServer(std::string port);
+    HTTPServer(const char *port);
     static void RequestHandler(struct mg_connection *c, int ev, void *p);
     void ServerLoop();
     ~HTTPServer();

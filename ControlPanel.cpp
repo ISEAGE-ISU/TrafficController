@@ -73,14 +73,18 @@ CDC::ControlPanel::~ControlPanel() {
   delete pwDb;
 }
 
-void CDC::ControlPanel::PrintStatus(std::string msg) {
+template <typename T>
+void CDC::ControlPanel::PrintStatus(const T& msg) {
   wclear(status_bar);
   box(status_bar, 0, 0);
   wattron(status_bar, COLOR_PAIR(1));
   mvwprintw(status_bar, 0, 2, "Status:");
   wattroff(status_bar, COLOR_PAIR(1));
 
-  mvwprintw(status_bar, 1, 3, "%s", msg.c_str());
+  std::stringstream printable;
+  printable << msg;
+
+  mvwprintw(status_bar, 1, 3, "%s", printable.str().c_str());
   wrefresh(status_bar);
 }
 
@@ -124,7 +128,7 @@ void CDC::ControlPanel::Shutdown() {
   exit(0);
 }
 
-std::string CDC::ControlPanel::GetInput(std::string prompt) {
+std::string CDC::ControlPanel::GetInput(const std::string &prompt) {
   char input[100] = {0};
   PrintStatus(prompt);
   echo();
@@ -142,19 +146,41 @@ void CDC::ControlPanel::MenuGetLightStatus() {
 }
 
 void CDC::ControlPanel::MenuUpdateFirmware() {
-  std::string tftp_ip = GetInput("Enter TFTP IP:");
+  std::string tftp_ip = GetInput("Enter TFTP Server IP:");
   std::string tftp_file = GetInput("Enter Filename:");
+  std::string url("tftp://");
+  double fileSize;
 
-  PrintStatus("Fetching from tftp://" + tftp_ip + "/" +  tftp_file);
+  url += tftp_ip + "/" + tftp_file;
+
+  PrintStatus("Fetching from " + url);
+
+  if (CDC::FileOps::tftp_download(url, "firmware.bin", &fileSize)) {
+    std::stringstream msg;
+    msg << "Success! Downloaded " << fileSize << " bytes.";
+    PrintStatus(msg.str());
+  }
 }
 
 void CDC::ControlPanel::MenuUploadTrafficProgramming() {
   if (loggedIn) {
     std::string tftp_ip = GetInput("Enter TFTP Server IP:");
     std::string tftp_file = GetInput("Enter Filename:");
+    std::string url("tftp://");
+    double fileSize;
 
-    PrintStatus("Fetching from tftp://" + tftp_ip + "/" +  tftp_file);
+    url += tftp_ip + "/" + tftp_file;
 
+    PrintStatus("Fetching from " + url);
+
+    if (CDC::FileOps::tftp_download(url, PROGRAMMING_FILE, &fileSize)) {
+      std::stringstream msg;
+      msg << "Success! Downloaded " << fileSize << " bytes.";
+      PrintStatus(msg.str());
+    }
+    else {
+      PrintStatus("There was an error downloading from " + url);
+    }
   }
   else {
     LoginPrompt();
@@ -189,7 +215,7 @@ void CDC::ControlPanel::LoginPrompt() {
     PrintStatus("Invalid password!");
   }
   else {
-    PrintStatus("Success!");
+    PrintStatus("Success! You may now access admin functions");
     loggedIn = true;
   }
 }

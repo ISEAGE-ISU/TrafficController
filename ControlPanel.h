@@ -8,9 +8,11 @@
 #include <string.h>
 #include <map>
 #include <functional>
+#include <sstream>
 
 #include "PasswordDB.h"
 #include "FileOps.h"
+#include "HTTPServer.h"
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define MENU_WIDTH 50
@@ -40,8 +42,9 @@ namespace CDC {
     std::map<std::string, std::function<void()>> menuHandler;
 
 
-    void PrintStatus(std::string msg);
-    std::string GetInput(std::string prompt);
+    template <typename T>
+    void PrintStatus(const T& msg);
+    std::string GetInput(const std::string &prompt);
     void Shutdown();
 
     void MenuRebootDevice();
