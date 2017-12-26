@@ -1,3 +1,10 @@
 CURLDIR=-I/tmp/curlbin/include -L/tmp/curlbin/lib
-all:
-	g++ ControlPanel.cpp main.cpp PasswordDB.cpp -g -lncurses -lmenu -std=c++17 -lstdc++fs -Wall
+CXX_FLAGS=-g -std=c++17 -Wall
+LIBS = -lncurses -lmenu -lstdc++fs
+
+all : a.out
+a.out : ControlPanel.o PasswordDB.o HTTPServer.o main.o
+	g++ $^ $(CXX_FLAGS) $(LIBS) -o $@
+
+clean:
+	rm *.o
