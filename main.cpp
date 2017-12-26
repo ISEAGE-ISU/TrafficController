@@ -1,8 +1,11 @@
 #include "ControlPanel.h"
+#include "HTTPServer.h"
 
-#include <fstream>
+#include <thread>
 
 int main() {
-  ControlPanel cp;
-  cp.InputLoop();
+  HTTPServer hs("8080", "cats.txt");
+  hs.ServerLoop();
+  //ControlPanel cp;
+  //cp.InputLoop();
 }
