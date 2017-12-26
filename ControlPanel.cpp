@@ -27,7 +27,6 @@ ControlPanel::ControlPanel() {
   set_menu_grey(menu, COLOR_PAIR(3));
 
 
-
   status_bar = subwin(stdscr, 4, max_col, max_row - 4, 0);
   box(status_bar, 0, 0);
 
@@ -35,7 +34,7 @@ ControlPanel::ControlPanel() {
 
   keypad(main_win, TRUE);
   set_menu_win(menu, main_win);
-  set_menu_sub(menu, derwin(main_win, MENU_HEIGHT - 5, MENU_WIDTH -2, 5, 2));
+  set_menu_sub(menu, derwin(main_win, MENU_HEIGHT - 5, MENU_WIDTH -6, 5, 6));
   set_menu_mark(menu, " > ");
   box(main_win, 0, 0);
 

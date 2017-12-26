@@ -28,7 +28,7 @@ private:
                           "Choice 5",
                           "Update Firmware",
                           "View Device Info",
-                          "Exit                                   ",
+                          "Exit",
                     };
   std::map<std::string, std::function<void()>> menuHandler;
 
@@ -44,7 +44,7 @@ private:
   void MenuUpdateFirmware();
   void MenuViewDeviceInfo();
   void MenuExit();
-  
+
 public:
   void InputLoop();
   ControlPanel();
