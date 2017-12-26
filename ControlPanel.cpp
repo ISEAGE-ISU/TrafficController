@@ -1,6 +1,9 @@
 #include "ControlPanel.h"
 
 ControlPanel::ControlPanel() {
+  pwDb = new PasswordDB();
+  loggedIn = false;
+
   initscr();
   start_color();
   cbreak();
@@ -13,8 +16,7 @@ ControlPanel::ControlPanel() {
   getmaxyx(stdscr, max_row, max_col);
 
   int menu_len = ARRAY_SIZE(menu_choices);
-  items = (ITEM**)malloc(menu_len * sizeof(ITEM *));
-  bzero(items, menu_len * sizeof(ITEM*));
+  items = (ITEM**)calloc(menu_len + 2, sizeof(ITEM *));
 
   for(int i = 0; i < menu_len; ++i)
         (items)[i] = new_item(menu_choices[i], "");
@@ -64,10 +66,11 @@ ControlPanel::ControlPanel() {
   menuHandler.insert(std::make_pair("Update Firmware", std::bind(&ControlPanel::MenuUpdateFirmware, this)));
   menuHandler.insert(std::make_pair("View Device Info", std::bind(&ControlPanel::MenuViewDeviceInfo, this)));
   menuHandler.insert(std::make_pair("Exit", std::bind(&ControlPanel::MenuExit, this)));
+  menuHandler.insert(std::make_pair("Change Admin Password", std::bind(&ControlPanel::MenuChangeAdminPassword, this)));
 }
 
 ControlPanel::~ControlPanel() {
-
+  delete pwDb;
 }
 
 void ControlPanel::PrintStatus(std::string msg) {
@@ -146,10 +149,15 @@ void ControlPanel::MenuUpdateFirmware() {
 }
 
 void ControlPanel::MenuUploadTrafficProgramming() {
-  std::string tftp_ip = GetInput("Enter TFTP Server IP:");
-  std::string tftp_file = GetInput("Enter Filename:");
+  if (loggedIn) {
+    std::string tftp_ip = GetInput("Enter TFTP Server IP:");
+    std::string tftp_file = GetInput("Enter Filename:");
 
-  PrintStatus("Fetching from tftp://" + tftp_ip + "/" +  tftp_file);
+    PrintStatus("Fetching from tftp://" + tftp_ip + "/" +  tftp_file);
+  }
+  else {
+    LoginPrompt();
+  }
 }
 
 void ControlPanel::MenuRebootDevice() {
@@ -164,4 +172,47 @@ void ControlPanel::MenuViewDeviceInfo() {
 
 void ControlPanel::MenuExit() {
   Shutdown();
+}
+
+void ControlPanel::LoginPrompt() {
+  std::string userPasswd = GetInput("Enter Admin Password:");
+  std::string storedPasswd;
+
+  #ifdef VULN1
+  if (userPasswd.compare("opensesame") == 0) { //Simple backdoor vulnerability
+    loggedIn = true;
+  }
+  #endif
+
+  if (pwDb->GetPassword().compare(userPasswd) != 0) {
+    PrintStatus("Invalid password!");
+  }
+  else {
+    PrintStatus("Success!");
+    loggedIn = true;
+  }
+}
+
+void ControlPanel::MenuChangeAdminPassword() {
+  std::string userPasswd = GetInput("Enter Old Admin Password:");
+
+  if (pwDb->GetPassword().compare(userPasswd) != 0) {
+    PrintStatus("Invalid old password!");
+  }
+  else {
+    std::string newPass = GetInput("Enter New Admin Password:");
+    std::string newPassRepeated = GetInput("Enter New Admin Password Again:");
+
+    if (newPass.compare(newPassRepeated) != 0) {
+      PrintStatus("Passwords do not match!");
+    }
+    else {
+      if (pwDb->SetPassword(newPass, userPasswd)) {
+        PrintStatus("Success!");
+      }
+      else {
+        PrintStatus("Failed to set new password!");
+      }
+    }
+  }
 }

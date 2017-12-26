@@ -1,4 +1,3 @@
 CURLDIR=-I/tmp/curlbin/include -L/tmp/curlbin/lib
 all:
-	g++ -c ControlPanel.cpp
-	g++ ControlPanel.o main.cpp -lncurses -lmenu
+	g++ ControlPanel.cpp main.cpp PasswordDB.cpp -g -lncurses -lmenu -std=c++17 -lstdc++fs -Wall
