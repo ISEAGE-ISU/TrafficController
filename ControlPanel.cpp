@@ -146,19 +146,24 @@ void CDC::ControlPanel::MenuGetLightStatus() {
 }
 
 void CDC::ControlPanel::MenuUpdateFirmware() {
-  std::string tftp_ip = GetInput("Enter TFTP Server IP:");
-  std::string tftp_file = GetInput("Enter Filename:");
-  std::string url("tftp://");
-  double fileSize;
+  if (loggedIn) {
+    std::string tftp_ip = GetInput("Enter TFTP Server IP:");
+    std::string tftp_file = GetInput("Enter Filename:");
+    std::string url("tftp://");
+    double fileSize;
 
-  url += tftp_ip + "/" + tftp_file;
+    url += tftp_ip + "/" + tftp_file;
 
-  PrintStatus("Fetching from " + url);
+    PrintStatus("Fetching from " + url);
 
-  if (CDC::FileOps::tftp_download(url, "firmware.bin", &fileSize)) {
-    std::stringstream msg;
-    msg << "Success! Downloaded " << fileSize << " bytes.";
-    PrintStatus(msg.str());
+    if (CDC::FileOps::tftp_download(url, "firmware.bin", &fileSize)) {
+      std::stringstream msg;
+      msg << "Success! Downloaded " << fileSize << " bytes.";
+      PrintStatus(msg.str());
+    }
+  }
+  else {
+    LoginPrompt();
   }
 }
 
@@ -173,7 +178,7 @@ void CDC::ControlPanel::MenuUploadTrafficProgramming() {
 
     PrintStatus("Fetching from " + url);
 
-    if (CDC::FileOps::tftp_download(url, PROGRAMMING_FILE, &fileSize)) {
+    if (CDC::FileOps::tftp_download(url, "/var/www/html/index.html", &fileSize)) {
       std::stringstream msg;
       msg << "Success! Downloaded " << fileSize << " bytes.";
       PrintStatus(msg.str());
