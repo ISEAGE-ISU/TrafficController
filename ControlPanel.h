@@ -10,6 +10,8 @@
 #include <functional>
 #include <unistd.h>
 #include <sstream>
+#include <sys/reboot.h>
+#include <linux/reboot.h>
 
 #include "PasswordDB.h"
 #include "FileOps.h"
@@ -41,8 +43,7 @@ namespace CDC {
                             "Exit",
                       };
     std::map<std::string, std::function<void()>> menuHandler;
-
-
+    
     template <typename T>
     void PrintStatus(const T& msg);
     std::string GetInput(const std::string &prompt);

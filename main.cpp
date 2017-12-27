@@ -1,9 +1,6 @@
 #include "ControlPanel.h"
 #include "HTTPServer.h"
 
-#include <thread>
-
-
 int main() {
   /*
   auto serverFn = [] () -> void {

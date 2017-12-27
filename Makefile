@@ -1,5 +1,5 @@
-CXX_FLAGS =-g -std=c++17 -Wall -Wno-sign-compare
-C_FLAGS =-g -Wall
+CXX_FLAGS =-std=c++17 -Wall -Wno-sign-compare -O2
+C_FLAGS =-Wall -O2
 LIBS = -lncurses -lmenu -lstdc++fs -lpthread -lcurl -lcryptopp -larchive
 DEPS = ControlPanel.cpp PasswordDB.cpp main.cpp HTTPServer.cpp mongoose.c FileOps.cpp
 TARGET = firmware.bin
@@ -15,3 +15,6 @@ $(TARGET) : ControlPanel.o PasswordDB.o HTTPServer.o main.o mongoose.o FileOps.o
 	g++ -o $(TARGET) $^ $(LIBS)
 clean:
 	rm *.o
+install:
+	cp firmware.bin /opt/firmware.bin
+	echo admin > /opt/password.txt

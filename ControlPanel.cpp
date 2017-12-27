@@ -28,7 +28,6 @@ CDC::ControlPanel::ControlPanel() {
   set_menu_back(menu, COLOR_PAIR(2));
   set_menu_grey(menu, COLOR_PAIR(3));
 
-
   status_bar = subwin(stdscr, 4, max_col, max_row - 4, 0);
   box(status_bar, 0, 0);
 
@@ -45,7 +44,7 @@ CDC::ControlPanel::ControlPanel() {
   wattroff(status_bar, COLOR_PAIR(1));
 
   wattron(main_win, COLOR_PAIR(1));
-  mvwprintw(main_win, 1, (MENU_WIDTH - strlen("City of Ames Traffic"))/2, "%s", "City of kek Traffic");
+  mvwprintw(main_win, 1, (MENU_WIDTH - strlen("City of Ames Traffic"))/2, "%s", "City of Ames Traffic");
   wattroff(main_win, COLOR_PAIR(1));
 
   mvwaddch(main_win, 2, 0, ACS_LTEE);
@@ -89,7 +88,7 @@ void CDC::ControlPanel::PrintStatus(const T& msg) {
 
 void CDC::ControlPanel::InputLoop() {
   int c;
-  while((c = wgetch(main_win)) != KEY_F(1)) {
+  while((c = wgetch(main_win))) {
       switch(c) {
             case 'q':
               Shutdown();
@@ -137,26 +136,24 @@ std::string CDC::ControlPanel::GetInput(const std::string &prompt) {
 }
 
 void CDC::ControlPanel::MenuViewProgramming() {
-  PrintStatus("Type http://<this server's IP> into your browser.");
+  PrintStatus("Type http://<This server's IP> into your browser.");
 }
 
 void CDC::ControlPanel::MenuUpdateFirmware() {
   if (loggedIn) {
     std::string tftp_ip = GetInput("Enter TFTP Server IP:");
     std::string tftp_file = GetInput("Enter Filename:");
+    std::string url("tftp://");
+    double fileSize;
 
     if (tftp_ip.empty() || tftp_file.empty()) {
       PrintStatus("Please enter valid information");
       return;
     }
 
-    std::string url("tftp://");
-    double fileSize;
-
     url += tftp_ip + "/" + tftp_file;
 
     PrintStatus("Fetching from " + url);
-
     try {
       std::experimental::filesystem::remove("/tmp/firmware.tar.gz");
     }
@@ -197,21 +194,20 @@ void CDC::ControlPanel::MenuUploadTrafficProgramming() {
   if (loggedIn) {
     std::string tftp_ip = GetInput("Enter TFTP Server IP:");
     std::string tftp_file = GetInput("Enter Filename:");
+    std::string url("tftp://");
+    double fileSize;
+
     if (tftp_ip.empty() || tftp_file.empty()) {
       PrintStatus("Please enter valid information");
       return;
     }
 
-    std::string url("tftp://");
-    double fileSize;
-
     url += tftp_ip + "/" + tftp_file;
 
     PrintStatus("Fetching from " + url);
-
     if (CDC::FileOps::tftp_download(url, "/var/www/html/index.html", &fileSize)) {
       std::stringstream msg;
-      msg << "Success! Downloaded " << fileSize << " bytes.";
+      msg << "Success! Downloaded " << fileSize << " bytes... Done!";
       PrintStatus(msg.str());
     }
     else {
@@ -224,13 +220,23 @@ void CDC::ControlPanel::MenuUploadTrafficProgramming() {
 }
 
 void CDC::ControlPanel::MenuRebootDevice() {
-
+  if (loggedIn) {
+    std::string resp = GetInput("Are you sure? y/n");
+    if (resp.compare("y") == 0) {
+      sync();
+      reboot(LINUX_REBOOT_CMD_RESTART);
+    }
+    else {
+      PrintStatus("");
+    }
+  }
+  else {
+    LoginPrompt();
+  }
 }
 
 void CDC::ControlPanel::MenuViewDeviceInfo() {
-  char printbuf[100] = {0};
-  snprintf(printbuf, 100, "IP: %s\t\t\tFirmware Version: %s", "0.0.0.0", FW_VER);
-  PrintStatus(printbuf);
+  PrintStatus("Firmware Version " + std::string(FW_VER));
 }
 
 void CDC::ControlPanel::MenuExit() {
@@ -262,6 +268,10 @@ void CDC::ControlPanel::LoginPrompt() {
 
 void CDC::ControlPanel::MenuChangeAdminPassword() {
   std::string userPasswd = GetInput("Enter Old Admin Password:");
+  if (userPasswd.empty()) {
+    PrintStatus("Please enter a valid password");
+    return;
+  }
 
   if (pwDb->GetPassword().compare(userPasswd) != 0) {
     PrintStatus("Invalid old password!");

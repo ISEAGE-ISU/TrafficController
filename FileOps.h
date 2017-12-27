@@ -13,6 +13,9 @@
 #include <archive_entry.h>
 #include <experimental/filesystem>
 
+#define MANIFEST_FILE "/tmp/manifest"
+#define FIRMWARE_FILE "/tmp/firmware.bin"
+
 namespace CDC {
   struct FileOps {
     static unsigned char key[64];

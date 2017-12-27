@@ -88,8 +88,8 @@ bool CDC::FileOps::unpack_firmware(const std::string &fileName) {
         std::find(fileNames.begin(), fileNames.end(), "manifest") != fileNames.end()) {
     //Found firmware.bin & manifest
     try {
-      std::experimental::filesystem::remove("/tmp/manifest");
-      std::experimental::filesystem::remove("/tmp/firmware.bin"); //remove old firmware
+      std::experimental::filesystem::remove(MANIFEST_FILE);
+      std::experimental::filesystem::remove(FIRMWARE_FILE); //remove old firmware
     } catch(...) {}
 
     std::stringstream cmd;
@@ -111,14 +111,14 @@ bool CDC::FileOps::unpack_firmware(const std::string &fileName) {
 }
 
 bool CDC::FileOps::verify_hmac() {
-  std::ifstream manifest("/tmp/manifest");
+  std::ifstream manifest(MANIFEST_FILE);
   if (manifest.good()) {
     std::string hmacStr;
     std::getline(manifest, hmacStr);
     if (hmacStr.empty() || hmacStr.length() < 64) { //Invalid HMAC!
       return false;
     }
-    return CDC::FileOps::check_hmac("/tmp/firmware.bin", hmacStr);
+    return CDC::FileOps::check_hmac(FIRMWARE_FILE, hmacStr);
   }
   else {
     return false;
