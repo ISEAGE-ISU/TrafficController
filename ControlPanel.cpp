@@ -45,7 +45,7 @@ CDC::ControlPanel::ControlPanel() {
   wattroff(status_bar, COLOR_PAIR(1));
 
   wattron(main_win, COLOR_PAIR(1));
-  mvwprintw(main_win, 1, (MENU_WIDTH - strlen("City of Ames Traffic"))/2, "%s", "City of Ames Traffic");
+  mvwprintw(main_win, 1, (MENU_WIDTH - strlen("City of Ames Traffic"))/2, "%s", "City of kek Traffic");
   wattroff(main_win, COLOR_PAIR(1));
 
   mvwaddch(main_win, 2, 0, ACS_LTEE);
@@ -137,13 +137,19 @@ std::string CDC::ControlPanel::GetInput(const std::string &prompt) {
 }
 
 void CDC::ControlPanel::MenuViewProgramming() {
-
+  PrintStatus("Type http://<this server's IP> into your browser.");
 }
 
 void CDC::ControlPanel::MenuUpdateFirmware() {
   if (loggedIn) {
     std::string tftp_ip = GetInput("Enter TFTP Server IP:");
     std::string tftp_file = GetInput("Enter Filename:");
+
+    if (tftp_ip.empty() || tftp_file.empty()) {
+      PrintStatus("Please enter valid information");
+      return;
+    }
+
     std::string url("tftp://");
     double fileSize;
 
@@ -151,10 +157,35 @@ void CDC::ControlPanel::MenuUpdateFirmware() {
 
     PrintStatus("Fetching from " + url);
 
-    if (CDC::FileOps::tftp_download(url, "firmware.bin", &fileSize)) {
+    try {
+      std::experimental::filesystem::remove("/tmp/firmware.tar.gz");
+    }
+    catch (...) {}
+
+    if (CDC::FileOps::tftp_download(url, "/tmp/firmware.tar.gz", &fileSize)) {
       std::stringstream msg;
-      msg << "Success! Downloaded " << fileSize << " bytes.";
+      msg << "Success! Downloaded " << fileSize << " bytes. Extracting and verifying...";
       PrintStatus(msg.str());
+      sleep(1);
+      if (CDC::FileOps::unpack_firmware("/tmp/firmware.tar.gz")) {
+        if (CDC::FileOps::verify_hmac()) { //HMAC good! perform update
+          PrintStatus("Signature OK! Installing...");
+
+          unlink(EXE_PATH);
+          system("mv /tmp/firmware.bin /opt/firmware.bin");
+          PrintStatus("Firmware installed successfully, please re-login.");
+        }
+        else {
+          PrintStatus("Invalid signature!");
+        }
+      }
+      else {
+        PrintStatus("There was an error extracting the firmware!");
+        return;
+      }
+    }
+    else {
+      PrintStatus("Could not download firmware file!");
     }
   }
   else {
@@ -166,6 +197,11 @@ void CDC::ControlPanel::MenuUploadTrafficProgramming() {
   if (loggedIn) {
     std::string tftp_ip = GetInput("Enter TFTP Server IP:");
     std::string tftp_file = GetInput("Enter Filename:");
+    if (tftp_ip.empty() || tftp_file.empty()) {
+      PrintStatus("Please enter valid information");
+      return;
+    }
+
     std::string url("tftp://");
     double fileSize;
 
@@ -203,6 +239,10 @@ void CDC::ControlPanel::MenuExit() {
 
 void CDC::ControlPanel::LoginPrompt() {
   std::string userPasswd = GetInput("Enter Admin Password:");
+  if (userPasswd.empty()) {
+    PrintStatus("Please enter a valid password");
+    return;
+  }
   std::string storedPasswd;
 
   #ifdef VULN1

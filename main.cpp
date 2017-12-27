@@ -3,6 +3,7 @@
 
 #include <thread>
 
+
 int main() {
   /*
   auto serverFn = [] () -> void {
@@ -13,7 +14,6 @@ int main() {
   std::thread httpServerThread(serverFn);
   httpServerThread.detach();
   */
-  CDC::FileOps::check_hmac("/bin/ls", "a");
-  //CDC::ControlPanel cp;
-  //cp.InputLoop();
+  CDC::ControlPanel cp;
+  cp.InputLoop();
 }

@@ -9,7 +9,9 @@
 #include <sstream>
 #include <cryptopp/hex.h>
 #include <cryptopp/files.h>
-
+#include <archive.h>
+#include <archive_entry.h>
+#include <experimental/filesystem>
 
 namespace CDC {
   struct FileOps {
@@ -25,7 +27,7 @@ namespace CDC {
 
     static bool check_hmac(const std::string &fileName, const std::string &inHMAC);
     static bool unpack_firmware(const std::string &fileName);
-    static bool verify_firmware(const std::string &fileName);
+    static bool verify_hmac();
     static size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
     static bool tftp_download(const std::string &url, const char *save_file, double *fileSize);
   };

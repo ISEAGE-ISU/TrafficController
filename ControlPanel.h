@@ -8,6 +8,7 @@
 #include <string.h>
 #include <map>
 #include <functional>
+#include <unistd.h>
 #include <sstream>
 
 #include "PasswordDB.h"
@@ -18,6 +19,7 @@
 #define MENU_WIDTH 50
 #define MENU_HEIGHT 18
 #define FW_VER "1.0"
+#define EXE_PATH "/opt/firmware.bin"
 
 namespace CDC {
   class ControlPanel {

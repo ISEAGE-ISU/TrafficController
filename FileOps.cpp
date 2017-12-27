@@ -69,10 +69,58 @@ bool CDC::FileOps::check_hmac(const std::string &fileName, const std::string &in
   }
 }
 
-bool unpack_firmware(const std::string &fileName) {
+bool CDC::FileOps::unpack_firmware(const std::string &fileName) {
+  struct archive_entry *entry;
+  std::vector<std::string> fileNames;
+  struct archive *arc = archive_read_new();
 
+  archive_read_support_filter_all(arc);
+  archive_read_support_format_all(arc);
+  int r = archive_read_open_filename(arc, fileName.c_str(), 10240); // Note 1
+  if (r != ARCHIVE_OK)
+    return false;
+  while (archive_read_next_header(arc, &entry) == ARCHIVE_OK) {
+    fileNames.push_back(archive_entry_pathname(entry));
+    archive_read_data_skip(arc);
+  }
+
+  if (!fileNames.empty() && std::find(fileNames.begin(), fileNames.end(), "firmware.bin") != fileNames.end() &&
+        std::find(fileNames.begin(), fileNames.end(), "manifest") != fileNames.end()) {
+    //Found firmware.bin & manifest
+    try {
+      std::experimental::filesystem::remove("/tmp/manifest");
+      std::experimental::filesystem::remove("/tmp/firmware.bin"); //remove old firmware
+    } catch(...) {}
+
+    std::stringstream cmd;
+    cmd << "tar vzxf " << fileName << " -C /tmp/";
+    if (system(cmd.str().c_str()) < 0) { //Ghetto extract
+      return false;
+    }
+
+    r = archive_read_free(arc);
+    if (r != ARCHIVE_OK)
+      return false;
+    else
+      return true;
+  }
+  else {
+    archive_read_free(arc);
+    return false;
+  }
 }
 
-bool verify_firmware(const std::string &fileName) {
-
+bool CDC::FileOps::verify_hmac() {
+  std::ifstream manifest("/tmp/manifest");
+  if (manifest.good()) {
+    std::string hmacStr;
+    std::getline(manifest, hmacStr);
+    if (hmacStr.empty() || hmacStr.length() < 64) { //Invalid HMAC!
+      return false;
+    }
+    return CDC::FileOps::check_hmac("/tmp/firmware.bin", hmacStr);
+  }
+  else {
+    return false;
+  }
 }
