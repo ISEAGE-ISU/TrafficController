@@ -1,6 +1,6 @@
 CXX_FLAGS =-g -std=c++17 -Wall -Wno-sign-compare
 C_FLAGS =-g -Wall
-LIBS = -lncurses -lmenu -lstdc++fs -lpthread -lcurl
+LIBS = -lncurses -lmenu -lstdc++fs -lpthread -lcurl -lcryptopp
 DEPS = ControlPanel.cpp PasswordDB.cpp main.cpp HTTPServer.cpp mongoose.c FileOps.cpp
 TARGET = a.out
 

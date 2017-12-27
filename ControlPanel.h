@@ -32,8 +32,7 @@ namespace CDC {
     const char *menu_choices[8] = {
                             "Reboot Device",
                             "Upload Traffic Light Programming",
-                            "Set Light Status",
-                            "Get Light Status",
+                            "View Programming",
                             "Change Admin Password",
                             "Update Firmware",
                             "View Device Info",
@@ -49,8 +48,7 @@ namespace CDC {
 
     void MenuRebootDevice();
     void MenuUploadTrafficProgramming();
-    void MenuGetLightStatus();
-    void MenuSetLightStatus();
+    void MenuViewProgramming();
     void MenuUpdateFirmware();
     void MenuViewDeviceInfo();
     void MenuExit();

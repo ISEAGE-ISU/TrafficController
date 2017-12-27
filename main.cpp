@@ -13,6 +13,7 @@ int main() {
   std::thread httpServerThread(serverFn);
   httpServerThread.detach();
   */
-  CDC::ControlPanel cp;
-  cp.InputLoop();
+  CDC::FileOps::check_hmac("/bin/ls", "a");
+  //CDC::ControlPanel cp;
+  //cp.InputLoop();
 }

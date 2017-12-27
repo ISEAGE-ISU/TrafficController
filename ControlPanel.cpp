@@ -61,8 +61,7 @@ CDC::ControlPanel::ControlPanel() {
   //Setup Menu handlers
   menuHandler.insert(std::make_pair("Reboot Device", std::bind(&CDC::ControlPanel::MenuRebootDevice, this)));
   menuHandler.insert(std::make_pair("Upload Traffic Light Programming", std::bind(&CDC::ControlPanel::MenuUploadTrafficProgramming, this)));
-  menuHandler.insert(std::make_pair("Set Light Status", std::bind(&CDC::ControlPanel::MenuSetLightStatus, this)));
-  menuHandler.insert(std::make_pair("Get Light Status", std::bind(&CDC::ControlPanel::MenuGetLightStatus, this)));
+  menuHandler.insert(std::make_pair("View Programming", std::bind(&CDC::ControlPanel::MenuViewProgramming, this)));
   menuHandler.insert(std::make_pair("Update Firmware", std::bind(&CDC::ControlPanel::MenuUpdateFirmware, this)));
   menuHandler.insert(std::make_pair("View Device Info", std::bind(&CDC::ControlPanel::MenuViewDeviceInfo, this)));
   menuHandler.insert(std::make_pair("Exit", std::bind(&CDC::ControlPanel::MenuExit, this)));
@@ -137,11 +136,7 @@ std::string CDC::ControlPanel::GetInput(const std::string &prompt) {
   return std::string(input);
 }
 
-void CDC::ControlPanel::MenuSetLightStatus() {
-
-}
-
-void CDC::ControlPanel::MenuGetLightStatus() {
+void CDC::ControlPanel::MenuViewProgramming() {
 
 }
 
