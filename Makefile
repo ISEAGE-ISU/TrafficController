@@ -18,3 +18,4 @@ clean:
 install:
 	cp firmware.bin /opt/firmware.bin
 	echo admin > /opt/password.txt
+  chmod u+s /opt/firmware.bin
