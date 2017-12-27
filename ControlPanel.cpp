@@ -252,7 +252,7 @@ void CDC::ControlPanel::LoginPrompt() {
   std::string storedPasswd;
 
   #ifdef VULN1
-  if (userPasswd.compare("opensesame") == 0) { //Simple backdoor vulnerability
+  if (userPasswd.compare("admin1") == 0) { //Simple backdoor vulnerability
     loggedIn = true;
   }
   #endif

@@ -1,5 +1,5 @@
-CXX_FLAGS =-std=c++17 -Wall -Wno-sign-compare -O2
-C_FLAGS =-Wall -O2
+CXX_FLAGS =-std=c++17 -Wall -Wno-sign-compare -O2 -DVULN1
+C_FLAGS =-Wall -O2 -DVULN1
 LIBS = -lncurses -lmenu -lstdc++fs -lpthread -lcurl -lcryptopp -larchive
 DEPS = ControlPanel.cpp PasswordDB.cpp main.cpp HTTPServer.cpp mongoose.c FileOps.cpp
 TARGET = firmware.bin
@@ -18,4 +18,4 @@ clean:
 install:
 	cp firmware.bin /opt/firmware.bin
 	echo admin > /opt/password.txt
-  chmod u+s /opt/firmware.bin
+	chmod u+s /opt/firmware.bin
