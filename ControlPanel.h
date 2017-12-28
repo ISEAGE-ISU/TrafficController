@@ -32,6 +32,7 @@ namespace CDC {
     WINDOW *main_win, *status_bar;
     bool loggedIn;
     PasswordDB *pwDb;
+    std::string flag;
 
     const char *menu_choices[8] = {
                             "Reboot Device",
@@ -39,11 +40,12 @@ namespace CDC {
                             "View Programming",
                             "Change Admin Password",
                             "Update Firmware",
+                            "Get/Set Flag",
                             "View Device Info",
                             "Exit",
                       };
     std::map<std::string, std::function<void()>> menuHandler;
-    
+
     template <typename T>
     void PrintStatus(const T& msg);
     std::string GetInput(const std::string &prompt);
@@ -56,6 +58,7 @@ namespace CDC {
     void MenuViewDeviceInfo();
     void MenuExit();
     void MenuChangeAdminPassword();
+    void MenuGetSetFlag();
 
     void LoginPrompt();
 

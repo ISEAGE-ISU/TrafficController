@@ -63,12 +63,59 @@ CDC::ControlPanel::ControlPanel() {
   menuHandler.insert(std::make_pair("View Programming", std::bind(&CDC::ControlPanel::MenuViewProgramming, this)));
   menuHandler.insert(std::make_pair("Update Firmware", std::bind(&CDC::ControlPanel::MenuUpdateFirmware, this)));
   menuHandler.insert(std::make_pair("View Device Info", std::bind(&CDC::ControlPanel::MenuViewDeviceInfo, this)));
+  menuHandler.insert(std::make_pair("Get/Set Flag", std::bind(&CDC::ControlPanel::MenuGetSetFlag, this)));
   menuHandler.insert(std::make_pair("Exit", std::bind(&CDC::ControlPanel::MenuExit, this)));
   menuHandler.insert(std::make_pair("Change Admin Password", std::bind(&CDC::ControlPanel::MenuChangeAdminPassword, this)));
+
+  if (std::experimental::filesystem::exists("flag")) {
+    std::ifstream flagFile("flag");
+    if (flagFile.good()) {
+      std::getline(flagFile, flag);
+      flagFile.close();
+    }
+  }
+  else
+    flag = "{empty} (Team has not entered their flag)";
 }
 
 CDC::ControlPanel::~ControlPanel() {
   delete pwDb;
+}
+
+void CDC::ControlPanel::MenuGetSetFlag() {
+  #ifdef VULN2
+  if (true) {
+  #else
+  if (loggedIn) {
+  #endif
+    std::string choice = GetInput("Get or set flag? Enter (g/s)");
+    if (choice.compare("g") == 0) {
+      PrintStatus(flag);
+    }
+    else if (choice.compare("s") == 0) {
+      std::string input = GetInput("Enter flag");
+      if (input.empty() || input.length() < 5) {
+        PrintStatus("Invalid input");
+      }
+      else {
+        std::ofstream flagFile("flag", std::ios::out | std::ios::trunc);
+        if (flagFile.good()) {
+          flagFile << input << std::endl;
+          flagFile.close();
+          flag = input;
+        }
+        else {
+          PrintStatus("Critical error, cannot write flag");
+        }
+      }
+    }
+    else {
+      PrintStatus("Invalid options. Type g or s");
+    }
+  }
+  else {
+    LoginPrompt();
+  }
 }
 
 template <typename T>
