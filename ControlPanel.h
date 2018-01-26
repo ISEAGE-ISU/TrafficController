@@ -34,7 +34,7 @@ namespace CDC {
     PasswordDB *pwDb;
     std::string flag;
 
-    const char *menu_choices[8] = {
+    const char *menu_choices[9] = {
                             "Reboot Device",
                             "Upload Traffic Light Programming",
                             "View Programming",
@@ -43,7 +43,14 @@ namespace CDC {
                             "Get/Set Flag",
                             "View Device Info",
                             "Exit",
+                            "Nyan Cat"
                       };
+    const char nyan_cat[5][13] = {
+                      ",------,   \n",
+                      "|   /\\_/\\\n",
+                      "|__( ^ .^) \n",
+                      "\"\"  \"\" \n"};
+
     std::map<std::string, std::function<void()>> menuHandler;
 
     template <typename T>
@@ -59,6 +66,7 @@ namespace CDC {
     void MenuExit();
     void MenuChangeAdminPassword();
     void MenuGetSetFlag();
+    void MenuNyanCat();
 
     void LoginPrompt();
 

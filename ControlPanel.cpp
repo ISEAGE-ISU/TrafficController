@@ -13,6 +13,13 @@ CDC::ControlPanel::ControlPanel() {
   init_pair(1, COLOR_RED, COLOR_BLACK);
   init_pair(2, COLOR_GREEN, COLOR_BLACK);
   init_pair(3, COLOR_MAGENTA, COLOR_BLACK);
+
+  init_pair(10, COLOR_RED, COLOR_BLACK);
+  init_pair(20, COLOR_YELLOW, COLOR_BLACK);
+  init_pair(30, COLOR_CYAN, COLOR_BLACK);
+  init_pair(40, COLOR_GREEN, COLOR_BLACK);
+  init_pair(50, COLOR_MAGENTA, COLOR_BLACK);
+
   getmaxyx(stdscr, max_row, max_col);
 
   int menu_len = ARRAY_SIZE(menu_choices);
@@ -66,6 +73,7 @@ CDC::ControlPanel::ControlPanel() {
   menuHandler.insert(std::make_pair("Get/Set Flag", std::bind(&CDC::ControlPanel::MenuGetSetFlag, this)));
   menuHandler.insert(std::make_pair("Exit", std::bind(&CDC::ControlPanel::MenuExit, this)));
   menuHandler.insert(std::make_pair("Change Admin Password", std::bind(&CDC::ControlPanel::MenuChangeAdminPassword, this)));
+  menuHandler.insert(std::make_pair("Nyan Cat", std::bind(&CDC::ControlPanel::MenuNyanCat, this)));
 
   if (std::experimental::filesystem::exists("flag")) {
     std::ifstream flagFile("flag");
@@ -80,6 +88,36 @@ CDC::ControlPanel::ControlPanel() {
 
 CDC::ControlPanel::~ControlPanel() {
   delete pwDb;
+}
+
+void CDC::ControlPanel::MenuNyanCat() {
+  auto draw_cat_step = [this](int x, int y, char* tail) {
+    int w = 0;
+   for (int i = 0; i<x; i++) {
+       *(tail+i) = '=';
+   }
+   for(w=0; w<4; w++) {
+       attron(COLOR_PAIR((w+1)*10));
+       mvprintw(y+w, 0, tail);
+       attron(COLOR_PAIR(5*10));
+       mvprintw(y+w, x, nyan_cat[w]);
+   }
+  };
+
+  int c = 0;
+  char *tail = (char*)malloc(max_col-8);
+  while (c < max_col-8 ) {
+          /*  print what we have. */
+        refresh();
+        c++;
+          /* draw our cat! */
+          /* allocate some space for the growing tail */
+        draw_cat_step(c, max_row/2+2, tail);
+          /* sleep for some */
+        usleep(50000);
+    }
+    PrintStatus("");
+    free(tail);
 }
 
 void CDC::ControlPanel::MenuGetSetFlag() {

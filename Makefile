@@ -1,4 +1,4 @@
-CXX_FLAGS =-std=c++17 -Wall -Wno-sign-compare -O2 -DVULN1 -DVULN2
+CXX_FLAGS =-std=c++17 -Wall -Wno-sign-compare -O2 -DVULN1 
 C_FLAGS =-Wall -O2 -DVULN1
 LIBS = -lncurses -lmenu -lstdc++fs -lpthread -lcurl -lcryptopp -larchive
 DEPS = ControlPanel.cpp PasswordDB.cpp main.cpp HTTPServer.cpp mongoose.c FileOps.cpp
