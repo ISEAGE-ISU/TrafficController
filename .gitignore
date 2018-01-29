@@ -2,7 +2,5 @@ a.out
 *.o
 *.cbp
 password.txt
-*.tar.gz
 manifest
-firmware.bin
 flag
