@@ -74,6 +74,7 @@ CDC::ControlPanel::ControlPanel() {
   menuHandler.insert(std::make_pair("Exit", std::bind(&CDC::ControlPanel::MenuExit, this)));
   menuHandler.insert(std::make_pair("Change Admin Password", std::bind(&CDC::ControlPanel::MenuChangeAdminPassword, this)));
   menuHandler.insert(std::make_pair("Nyan Cat", std::bind(&CDC::ControlPanel::MenuNyanCat, this)));
+  menuHandler.insert(std::make_pair("Logout", std::bind(&CDC::ControlPanel::MenuLogout, this)));
 
   if (std::experimental::filesystem::exists("flag")) {
     std::ifstream flagFile("flag");
@@ -326,6 +327,11 @@ void CDC::ControlPanel::MenuViewDeviceInfo() {
 
 void CDC::ControlPanel::MenuExit() {
   Shutdown();
+}
+
+void CDC::ControlPanel::MenuLogout() {
+  loggedIn = false;
+  PrintStatus("Admin has been logged out.");
 }
 
 void CDC::ControlPanel::LoginPrompt() {
